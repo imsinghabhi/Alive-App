@@ -25,7 +25,12 @@ export function SubHeaderTabs({ activeTab, onSelectTab }: SubHeaderTabsProps) {
             <Text style={[styles.tabText, isActive && styles.activeTabText]}>
               {tab}
             </Text>
-            {isActive && <View style={styles.activeIndicator} />}
+            <View
+              style={[
+                styles.indicator,
+                isActive ? styles.activeIndicator : styles.inactiveIndicator,
+              ]}
+            />
           </Pressable>
         );
       })}
@@ -38,13 +43,14 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     paddingHorizontal: spacing.lg,
-    paddingVertical: spacing.xs,
+    paddingTop: spacing.xs,
+    paddingBottom: spacing.xs,
     gap: spacing.xl,
     backgroundColor: '#FFFFFF',
   },
   tabItem: {
     paddingVertical: spacing.xs,
-    position: 'relative',
+    alignItems: 'center',
   },
   tabText: {
     fontSize: 20,
@@ -55,13 +61,16 @@ const styles = StyleSheet.create({
     color: colors.accentEnd,
     fontWeight: '800',
   },
-  activeIndicator: {
-    position: 'absolute',
-    bottom: -2,
-    left: 0,
-    right: 0,
+  indicator: {
+    marginTop: 4,
+    width: '100%',
     height: 3,
-    backgroundColor: colors.accentEnd,
     borderRadius: 2,
+  },
+  activeIndicator: {
+    backgroundColor: colors.accentEnd,
+  },
+  inactiveIndicator: {
+    backgroundColor: 'transparent',
   },
 });

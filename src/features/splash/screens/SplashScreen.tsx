@@ -1,5 +1,6 @@
 import React from 'react';
 import { StyleSheet, Text, View } from 'react-native';
+import { SafeAreaView } from 'react-native-safe-area-context';
 import Animated, { useAnimatedStyle } from 'react-native-reanimated';
 
 import { colors, spacing, typography } from '../../../shared/theme';
@@ -20,25 +21,30 @@ export function SplashScreen() {
   }));
 
   return (
-    <View style={styles.container}>
-      <Animated.View style={[styles.logoWrapper, logoStyle]}>
-        <SplashLogo />
-      </Animated.View>
+    <SafeAreaView style={styles.screen}>
+      <View style={styles.container}>
+        <Animated.View style={[styles.logoWrapper, logoStyle]}>
+          <SplashLogo />
+        </Animated.View>
 
-      <Animated.View style={textStyle}>
-        <Text style={styles.title}>Welcome to Alive</Text>
-        <Text style={styles.subtitle}>
-          Live streaming and voice chat, built for instant connection.
-        </Text>
-      </Animated.View>
-    </View>
+        <Animated.View style={textStyle}>
+          <Text style={styles.title}>Welcome to Alive</Text>
+          <Text style={styles.subtitle}>
+            Live streaming and voice chat, built for instant connection.
+          </Text>
+        </Animated.View>
+      </View>
+    </SafeAreaView>
   );
 }
 
 const styles = StyleSheet.create({
-  container: {
+  screen: {
     flex: 1,
     backgroundColor: colors.background,
+  },
+  container: {
+    flex: 1,
     alignItems: 'center',
     justifyContent: 'center',
     paddingHorizontal: spacing.xl,

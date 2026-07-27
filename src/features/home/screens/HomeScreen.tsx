@@ -1,13 +1,13 @@
-import React from 'react';
+import React, { useEffect, useRef } from 'react';
 import {
   ActivityIndicator,
   FlatList,
   RefreshControl,
-  SafeAreaView,
   StyleSheet,
   Text,
   View,
 } from 'react-native';
+import { SafeAreaView } from 'react-native-safe-area-context';
 import { CountryFilterBar } from '../components/CountryFilterBar';
 import { HomeHeader } from '../components/HomeHeader';
 import { LiveStreamCard } from '../components/LiveStreamCard';
@@ -17,9 +17,15 @@ import { colors, spacing } from '../../../shared/theme';
 
 export function HomeScreen() {
   const { state, actions } = useHomeViewModel();
+  const flatListRef = useRef<FlatList>(null);
+
+  // Reset scroll offset to 0 whenever sub-tab or country filter changes
+  useEffect(() => {
+    flatListRef.current?.scrollToOffset({ offset: 0, animated: false });
+  }, [state.activeSubTab, state.selectedCountryId]);
 
   return (
-    <SafeAreaView style={styles.screen}>
+    <SafeAreaView style={styles.screen} edges={['top']}>
       {/* Header */}
       <HomeHeader
         unreadCount={state.unreadNotifications}
@@ -42,11 +48,13 @@ export function HomeScreen() {
 
       {/* Live Stream Cards 2-Column Grid */}
       <FlatList
+        ref={flatListRef}
         data={state.streams}
         keyExtractor={item => item.id}
         numColumns={2}
-        columnWrapperStyle={state.streams.length > 0 ? styles.columnWrapper : undefined}
+        columnWrapperStyle={styles.columnWrapper}
         contentContainerStyle={styles.listContent}
+        extraData={`${state.activeSubTab}_${state.selectedCountryId}_${state.streams.length}`}
         showsVerticalScrollIndicator={false}
         refreshControl={
           <RefreshControl
@@ -87,6 +95,7 @@ const styles = StyleSheet.create({
     backgroundColor: '#FFFFFF',
   },
   listContent: {
+    flexGrow: 1,
     paddingHorizontal: spacing.lg,
     paddingTop: spacing.sm,
     paddingBottom: spacing.xxl,
@@ -95,8 +104,10 @@ const styles = StyleSheet.create({
     justifyContent: 'space-between',
   },
   emptyContainer: {
+    flex: 1,
     padding: 40,
     alignItems: 'center',
+    justifyContent: 'center',
   },
   emptyText: {
     color: '#888888',

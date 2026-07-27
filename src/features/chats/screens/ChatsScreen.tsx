@@ -1,20 +1,26 @@
 import React from 'react';
 import { StyleSheet, Text, View } from 'react-native';
+import { SafeAreaView } from 'react-native-safe-area-context';
 import { colors } from '../../../shared/theme';
 
 export function ChatsScreen() {
   return (
-    <View style={styles.container}>
-      <Text style={styles.title}>Messages 💬</Text>
-      <Text style={styles.subtitle}>Chat with streamers & community</Text>
-    </View>
+    <SafeAreaView style={styles.screen} edges={['top']}>
+      <View style={styles.container}>
+        <Text style={styles.title}>Messages 💬</Text>
+        <Text style={styles.subtitle}>Chat with streamers & community</Text>
+      </View>
+    </SafeAreaView>
   );
 }
 
 const styles = StyleSheet.create({
-  container: {
+  screen: {
     flex: 1,
     backgroundColor: colors.background,
+  },
+  container: {
+    flex: 1,
     alignItems: 'center',
     justifyContent: 'center',
     padding: 24,

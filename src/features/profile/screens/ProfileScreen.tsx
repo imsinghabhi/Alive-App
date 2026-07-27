@@ -1,5 +1,6 @@
 import React, { useCallback } from 'react';
 import { Pressable, StyleSheet, Text, View } from 'react-native';
+import { SafeAreaView } from 'react-native-safe-area-context';
 import { useLoginViewModel } from '../../auth/hooks/useLoginViewModel';
 import { colors, spacing } from '../../../shared/theme';
 
@@ -17,40 +18,45 @@ export function ProfileScreen() {
   }, [actions]);
 
   return (
-    <View style={styles.container}>
-      <Text style={styles.title}>My Profile 👤</Text>
-      {state.user?.email ? (
-        <Text style={styles.userEmail}>{state.user.email}</Text>
-      ) : null}
-      <Text style={styles.subtitle}>Manage your account and settings</Text>
+    <SafeAreaView style={styles.screen} edges={['top']}>
+      <View style={styles.container}>
+        <Text style={styles.title}>My Profile 👤</Text>
+        {state.user?.email ? (
+          <Text style={styles.userEmail}>{state.user.email}</Text>
+        ) : null}
+        <Text style={styles.subtitle}>Manage your account and settings</Text>
 
-      <View style={styles.btnRow}>
-        <Pressable
-          style={styles.logoutBtn}
-          onPress={handleLogout}
-          disabled={state.loading}
-        >
-          <Text style={styles.logoutBtnText}>
-            {state.loading ? 'Logging out...' : 'Logout'}
-          </Text>
-        </Pressable>
+        <View style={styles.btnRow}>
+          <Pressable
+            style={styles.logoutBtn}
+            onPress={handleLogout}
+            disabled={state.loading}
+          >
+            <Text style={styles.logoutBtnText}>
+              {state.loading ? 'Logging out...' : 'Logout'}
+            </Text>
+          </Pressable>
 
-        <Pressable
-          style={styles.deleteBtn}
-          onPress={handleDeleteAccount}
-          disabled={state.loading}
-        >
-          <Text style={styles.deleteBtnText}>Delete Account</Text>
-        </Pressable>
+          <Pressable
+            style={styles.deleteBtn}
+            onPress={handleDeleteAccount}
+            disabled={state.loading}
+          >
+            <Text style={styles.deleteBtnText}>Delete Account</Text>
+          </Pressable>
+        </View>
       </View>
-    </View>
+    </SafeAreaView>
   );
 }
 
 const styles = StyleSheet.create({
-  container: {
+  screen: {
     flex: 1,
     backgroundColor: colors.background,
+  },
+  container: {
+    flex: 1,
     alignItems: 'center',
     justifyContent: 'center',
     padding: 24,
