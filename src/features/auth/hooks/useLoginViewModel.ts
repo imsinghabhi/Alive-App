@@ -1,21 +1,19 @@
 import { useCallback, useEffect, useState } from 'react';
 import { GoogleSignin } from '@react-native-google-signin/google-signin';
-import {
-  getAuth,
-  GoogleAuthProvider,
-  signInWithCredential,
-  signOut as firebaseSignOut,
-} from '@react-native-firebase/auth';
+import { useAppDispatch, useAppSelector } from '../../../store/hooks';
+import { clearError, setError, setLoading } from '../../../store/slices/authSlice';
+import { authService } from '../services/authService';
 
 const GOOGLE_WEB_CLIENT_ID =
   '148236423672-6b7ldt1oj1qnoi02v367916s5engq7fu.apps.googleusercontent.com';
 
 export function useLoginViewModel() {
+  const dispatch = useAppDispatch();
+  const authState = useAppSelector(state => state.auth);
+
   const [identifier, setIdentifier] = useState('');
   const [password, setPassword] = useState('');
   const [passwordVisible, setPasswordVisible] = useState(false);
-  const [loading, setLoading] = useState(false);
-  const [errorMessage, setErrorMessage] = useState<string | null>(null);
 
   useEffect(() => {
     GoogleSignin.configure({
@@ -29,84 +27,85 @@ export function useLoginViewModel() {
   }, []);
 
   const logout = useCallback(async () => {
+    dispatch(setLoading(true));
     try {
-      const authInstance = getAuth();
-      await firebaseSignOut(authInstance);
-      await GoogleSignin.signOut();
-    } catch (e) {
+      await authService.signOutUser();
+    } catch (e: any) {
       console.log('Logout error:', e);
+      dispatch(setError(e?.message || 'Logout failed'));
+    } finally {
+      dispatch(setLoading(false));
     }
-  }, []);
+  }, [dispatch]);
+
+  const deleteAccount = useCallback(async () => {
+    dispatch(setLoading(true));
+    try {
+      await authService.deleteUserAccount();
+    } catch (e: any) {
+      console.log('Delete account error:', e);
+      dispatch(setError(e?.message || 'Failed to delete account'));
+    } finally {
+      dispatch(setLoading(false));
+    }
+  }, [dispatch]);
 
   const loginWithGoogle = useCallback(async () => {
-    setLoading(true);
-    setErrorMessage(null);
+    dispatch(setLoading(true));
+    dispatch(clearError());
     try {
-      GoogleSignin.configure({
-        webClientId: GOOGLE_WEB_CLIENT_ID,
-        offlineAccess: true,
-      });
-
-      await GoogleSignin.hasPlayServices({ showPlayServicesUpdateDialog: true });
-
-      // Sign out existing Google session to ensure Account Chooser prompt opens every time
-      try {
-        await GoogleSignin.signOut();
-      } catch {
-        // Ignore if no session was active
-      }
-
-      const signInResult = await GoogleSignin.signIn();
-      const tokens = await GoogleSignin.getTokens();
-
-      const idToken =
-        signInResult.data?.idToken ||
-        (signInResult as any).idToken ||
-        tokens.idToken;
-      const accessToken =
-        tokens.accessToken ||
-        (signInResult.data as any)?.accessToken;
-
-      if (!idToken) {
-        throw new Error('Google Sign-In failed: No ID token returned.');
-      }
-
-      const googleCredential = GoogleAuthProvider.credential(
-        idToken,
-        accessToken,
-      );
-
-      const authInstance = getAuth();
-      const userCredential = await signInWithCredential(
-        authInstance,
-        googleCredential,
-      );
-
+      const userCredential = await authService.loginWithGoogle();
       console.log('Google Login Successful:', userCredential.user);
       return userCredential;
     } catch (error: any) {
       const message = error?.message || 'Google Sign-In failed';
-      setErrorMessage(message);
+      dispatch(setError(message));
       throw error;
     } finally {
-      setLoading(false);
+      dispatch(setLoading(false));
     }
-  }, []);
+  }, [dispatch]);
+
+  const loginWithEmailPassword = useCallback(async () => {
+    if (!identifier || !password) {
+      dispatch(setError('Please enter both email/phone and password.'));
+      return;
+    }
+    dispatch(setLoading(true));
+    dispatch(clearError());
+    try {
+      const userCredential = await authService.loginWithEmailPassword(
+        identifier,
+        password,
+      );
+      console.log('Direct Login Successful:', userCredential.user);
+      return userCredential;
+    } catch (error: any) {
+      const message = error?.message || 'Login failed. Check your credentials.';
+      dispatch(setError(message));
+    } finally {
+      dispatch(setLoading(false));
+    }
+  }, [dispatch, identifier, password]);
 
   return {
     state: {
       identifier,
       password,
       passwordVisible,
-      loading,
-      errorMessage,
+      loading: authState.loading,
+      errorMessage: authState.error,
+      user: authState.user,
+      initializing: authState.initializing,
     },
     actions: {
       setIdentifier,
       setPassword,
       togglePasswordVisibility,
       loginWithGoogle,
+      loginWithEmailPassword,
       logout,
+      deleteAccount,
     },
   };
 }

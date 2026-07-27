@@ -1,28 +1,13 @@
-import React, { useEffect } from 'react';
+import React from 'react';
 import { StyleSheet, Text, View } from 'react-native';
-import { useNavigation } from '@react-navigation/native';
-import type { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import Animated, { useAnimatedStyle } from 'react-native-reanimated';
 
-import { ROUTES, type RootStackParamList } from '../../../shared/constants/routes';
-import { durations } from '../../../shared/constants/durations';
 import { colors, spacing, typography } from '../../../shared/theme';
 import { SplashLogo } from '../components/SplashLogo';
 import { useSplashAnimation } from '../hooks/useSplashAnimation';
 
-type SplashNavigationProp = NativeStackNavigationProp<RootStackParamList>;
-
 export function SplashScreen() {
-  const navigation = useNavigation<SplashNavigationProp>();
   const animations = useSplashAnimation();
-
-  useEffect(() => {
-    const timeout = setTimeout(() => {
-      navigation.replace(ROUTES.LoginScreen);
-    }, durations.splashHold);
-
-    return () => clearTimeout(timeout);
-  }, [navigation]);
 
   const logoStyle = useAnimatedStyle(() => ({
     opacity: animations.opacity.value,

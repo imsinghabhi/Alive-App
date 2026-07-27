@@ -38,8 +38,12 @@ export function LoginScreen() {
     try {
       await actions.loginWithGoogle();
     } catch {
-      // Error message is already captured in state for the UI.
+      // Error message is captured in state for UI.
     }
+  }, [actions]);
+
+  const onDirectLogin = useCallback(async () => {
+    await actions.loginWithEmailPassword();
   }, [actions]);
 
   return (
@@ -58,7 +62,7 @@ export function LoginScreen() {
               <Text style={styles.logoText}>Alive</Text>
             </View>
           </View>
-          <Text style={styles.title}>Welcomehhhh back! 👋</Text>
+          <Text style={styles.title}>Welcome back! 👋</Text>
           <Text style={styles.subtitle}>
             Sign in to continue your live streaming journey.
           </Text>
@@ -103,7 +107,7 @@ export function LoginScreen() {
 
           <GradientButton
             title="Login"
-            onPress={onGoogleLogin}
+            onPress={onDirectLogin}
             loading={state.loading}
           />
         </View>
