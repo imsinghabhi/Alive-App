@@ -21,7 +21,7 @@ interface LiveStreamCardProps {
   onToggleFollow?: (id: string) => void;
 }
 
-export function LiveStreamCard({
+function LiveStreamCardComponent({
   item,
   onPressCard,
   onToggleFollow,
@@ -86,6 +86,8 @@ export function LiveStreamCard({
     </Pressable>
   );
 }
+
+export const LiveStreamCard = React.memo(LiveStreamCardComponent);
 
 const styles = StyleSheet.create({
   cardContainer: {

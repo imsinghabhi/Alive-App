@@ -1,7 +1,8 @@
-import React, { useEffect, useRef } from 'react';
+import React, { useCallback, useEffect, useRef } from 'react';
 import {
   ActivityIndicator,
   FlatList,
+  ListRenderItem,
   RefreshControl,
   StyleSheet,
   Text,
@@ -13,48 +14,88 @@ import { HomeHeader } from '../components/HomeHeader';
 import { LiveStreamCard } from '../components/LiveStreamCard';
 import { SubHeaderTabs } from '../components/SubHeaderTabs';
 import { useHomeViewModel } from '../hooks/useHomeViewModel';
+import { LiveStreamCardData } from '../types/home.types';
 import { colors, spacing } from '../../../shared/theme';
 
 export function HomeScreen() {
   const { state, actions } = useHomeViewModel();
-  const flatListRef = useRef<FlatList>(null);
+  const flatListRef = useRef<FlatList<LiveStreamCardData>>(null);
+
+  // Dynamic key based on active sub-tab and selected country.
+  // Re-keying unmounts the previous VirtualizedList instance, purging stored cell
+  // height metrics, scroll offsets, and virtualization caches completely.
+  const listKey = `grid_${state.activeSubTab}_${state.selectedCountryId}`;
 
   // Reset scroll offset to 0 whenever sub-tab or country filter changes
   useEffect(() => {
     flatListRef.current?.scrollToOffset({ offset: 0, animated: false });
   }, [state.activeSubTab, state.selectedCountryId]);
 
+  // Memoized renderItem to prevent item re-renders on parent state updates
+  const renderItem: ListRenderItem<LiveStreamCardData> = useCallback(
+    ({ item }) => (
+      <LiveStreamCard
+        item={item}
+        onPressCard={() => {}}
+        onToggleFollow={actions.toggleFollowHost}
+      />
+    ),
+    [actions.toggleFollowHost],
+  );
+
+  // Memoized ListEmptyComponent positioned immediately below the country filter bar
+  const renderEmptyComponent = useCallback(() => {
+    if (state.loading) {
+      return (
+        <View style={styles.loadingContainer}>
+          <ActivityIndicator size="large" color={colors.accentEnd} />
+        </View>
+      );
+    }
+
+    return (
+      <View style={styles.emptyContainer}>
+        <Text style={styles.emptyText}>No live streams found</Text>
+      </View>
+    );
+  }, [state.loading]);
+
   return (
     <SafeAreaView style={styles.screen} edges={['top']}>
-      {/* Header */}
-      <HomeHeader
-        unreadCount={state.unreadNotifications}
-        onPressNotification={() => {}}
-        onPressGiftBag={() => {}}
-      />
+      {/* Top Header & Filter Controls */}
+      <View style={styles.topSection}>
+        <HomeHeader
+          unreadCount={state.unreadNotifications}
+          onPressNotification={() => {}}
+          onPressGiftBag={() => {}}
+        />
 
-      {/* Sub-Header Tabs */}
-      <SubHeaderTabs
-        activeTab={state.activeSubTab}
-        onSelectTab={actions.selectSubTab}
-      />
+        <SubHeaderTabs
+          activeTab={state.activeSubTab}
+          onSelectTab={actions.selectSubTab}
+        />
 
-      {/* Country Filter Chips */}
-      <CountryFilterBar
-        countries={state.countries}
-        selectedCountryId={state.selectedCountryId}
-        onSelectCountry={actions.selectCountry}
-      />
+        <CountryFilterBar
+          countries={state.countries}
+          selectedCountryId={state.selectedCountryId}
+          onSelectCountry={actions.selectCountry}
+        />
+      </View>
 
       {/* Live Stream Cards 2-Column Grid */}
       <FlatList
         ref={flatListRef}
+        key={listKey}
         data={state.streams}
         keyExtractor={item => item.id}
         numColumns={2}
         columnWrapperStyle={styles.columnWrapper}
-        contentContainerStyle={styles.listContent}
-        extraData={`${state.activeSubTab}_${state.selectedCountryId}_${state.streams.length}`}
+        contentContainerStyle={[
+          styles.listContent,
+          state.streams.length === 0 && styles.emptyListContent,
+        ]}
+        style={styles.flatList}
+        extraData={state.streams}
         showsVerticalScrollIndicator={false}
         refreshControl={
           <RefreshControl
@@ -64,26 +105,8 @@ export function HomeScreen() {
             tintColor={colors.accentEnd}
           />
         }
-        renderItem={({ item }) => (
-          <LiveStreamCard
-            item={item}
-            onPressCard={() => {}}
-            onToggleFollow={actions.toggleFollowHost}
-          />
-        )}
-        ListEmptyComponent={
-          !state.loading ? (
-            <View style={styles.emptyContainer}>
-              <Text style={styles.emptyText}>No live streams found</Text>
-            </View>
-          ) : (
-            <ActivityIndicator
-              size="large"
-              color={colors.accentEnd}
-              style={{ marginTop: 40 }}
-            />
-          )
-        }
+        renderItem={renderItem}
+        ListEmptyComponent={renderEmptyComponent}
       />
     </SafeAreaView>
   );
@@ -94,20 +117,37 @@ const styles = StyleSheet.create({
     flex: 1,
     backgroundColor: '#FFFFFF',
   },
+  topSection: {
+    backgroundColor: '#FFFFFF',
+    flexGrow: 0,
+    flexShrink: 0,
+  },
+  flatList: {
+    flex: 1,
+  },
   listContent: {
-    flexGrow: 1,
     paddingHorizontal: spacing.lg,
-    paddingTop: spacing.sm,
+    paddingTop: 14,
     paddingBottom: spacing.xxl,
+  },
+  emptyListContent: {
+    flexGrow: 1,
   },
   columnWrapper: {
     justifyContent: 'space-between',
   },
-  emptyContainer: {
+  loadingContainer: {
     flex: 1,
-    padding: 40,
     alignItems: 'center',
     justifyContent: 'center',
+    width: '100%',
+  },
+  emptyContainer: {
+    flex: 1,
+    paddingHorizontal: spacing.lg,
+    alignItems: 'center',
+    justifyContent: 'center',
+    width: '100%',
   },
   emptyText: {
     color: '#888888',
