@@ -67,26 +67,20 @@ export function useLoginViewModel() {
   }, [dispatch]);
 
   const loginWithEmailPassword = useCallback(async () => {
-    if (!identifier || !password) {
-      dispatch(setError('Please enter both email/phone and password.'));
-      return;
-    }
-    dispatch(setLoading(true));
-    dispatch(clearError());
-    try {
-      const userCredential = await authService.loginWithEmailPassword(
-        identifier,
-        password,
-      );
-      console.log('Direct Login Successful:', userCredential.user);
-      return userCredential;
-    } catch (error: any) {
-      const message = error?.message || 'Login failed. Check your credentials.';
-      dispatch(setError(message));
-    } finally {
-      dispatch(setLoading(false));
-    }
-  }, [dispatch, identifier, password]);
+    dispatch(setError('Email & Password login is not implemented yet. Please sign in with Google.'));
+  }, [dispatch]);
+
+  const handleForgotPassword = useCallback(() => {
+    dispatch(setError('Forgot Password feature is not implemented yet.'));
+  }, [dispatch]);
+
+  const handleSignUp = useCallback(() => {
+    dispatch(setError('Sign Up feature is not implemented yet.'));
+  }, [dispatch]);
+
+  const handleFacebookLogin = useCallback(() => {
+    dispatch(setError('Facebook Sign-In is not implemented yet. Please sign in with Google.'));
+  }, [dispatch]);
 
   return {
     state: {
@@ -104,6 +98,9 @@ export function useLoginViewModel() {
       togglePasswordVisibility,
       loginWithGoogle,
       loginWithEmailPassword,
+      handleForgotPassword,
+      handleSignUp,
+      handleFacebookLogin,
       logout,
       deleteAccount,
     },

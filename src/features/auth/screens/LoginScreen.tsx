@@ -97,7 +97,7 @@ export function LoginScreen() {
             }
           />
 
-          <Pressable style={styles.forgotWrap}>
+          <Pressable style={styles.forgotWrap} onPress={actions.handleForgotPassword}>
             <Text style={styles.forgotText}>Forgot Password?</Text>
           </Pressable>
 
@@ -129,7 +129,7 @@ export function LoginScreen() {
               />
             </Pressable>
 
-            <Pressable>
+            <Pressable onPress={actions.handleFacebookLogin}>
               <SocialButton
                 title="Continue with Facebook"
                 icon={<Text style={styles.facebookIcon}>f</Text>}
@@ -138,7 +138,10 @@ export function LoginScreen() {
           </View>
 
           <Text style={styles.signupText}>
-            Don’t have an account? <Text style={styles.signupLink}>Sign Up</Text>
+            Don’t have an account?{' '}
+            <Text style={styles.signupLink} onPress={actions.handleSignUp}>
+              Sign Up
+            </Text>
           </Text>
         </View>
       </ScrollView>
