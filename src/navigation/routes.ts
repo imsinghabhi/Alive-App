@@ -1,0 +1,1 @@
+export { ROUTES, type RootStackParamList } from '../shared/constants/routes';
