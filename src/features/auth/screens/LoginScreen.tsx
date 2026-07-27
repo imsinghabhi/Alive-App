@@ -1,6 +1,5 @@
 import React, { useCallback } from 'react';
 import {
-  Image,
   KeyboardAvoidingView,
   Platform,
   Pressable,
@@ -15,7 +14,7 @@ import Icon from 'react-native-vector-icons/Ionicons';
 import { AuthTextField } from '../components/AuthTextField';
 import { GradientButton } from '../components/GradientButton';
 import { useLoginViewModel } from '../hooks/useLoginViewModel';
-import { colors, spacing, typography } from '../../../shared/theme';
+import { colors, spacing } from '../../../shared/theme';
 import { SplashLogo } from '../../splash/components/SplashLogo';
 
 function SocialButton({
