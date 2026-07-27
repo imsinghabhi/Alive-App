@@ -41,7 +41,7 @@ export function SplashScreen() {
       </Animated.View>
 
       <Animated.View style={textStyle}>
-        <Text style={styles.title}>Welcome to ALive</Text>
+        <Text style={styles.title}>Welcome to Alive</Text>
         <Text style={styles.subtitle}>
           Live streaming and voice chat, built for instant connection.
         </Text>

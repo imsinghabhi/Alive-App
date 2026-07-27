@@ -1,4 +1,4 @@
-package com.awesomeapp
+package com.lvstech.alive2026
 
 import android.app.Application
 import com.facebook.react.PackageList
