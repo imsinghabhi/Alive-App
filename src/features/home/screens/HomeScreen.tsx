@@ -3,12 +3,15 @@ import {
   ActivityIndicator,
   FlatList,
   ListRenderItem,
+  Pressable,
   RefreshControl,
   StyleSheet,
   Text,
+  TextInput,
   View,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
+import Icon from 'react-native-vector-icons/Ionicons';
 import { CountryFilterBar } from '../components/CountryFilterBar';
 import { HomeHeader } from '../components/HomeHeader';
 import { LiveStreamCard } from '../components/LiveStreamCard';
@@ -21,15 +24,15 @@ export function HomeScreen() {
   const { state, actions } = useHomeViewModel();
   const flatListRef = useRef<FlatList<LiveStreamCardData>>(null);
 
-  // Dynamic key based on active sub-tab and selected country.
+  // Dynamic key based on active sub-tab, selected country, and search query.
   // Re-keying unmounts the previous VirtualizedList instance, purging stored cell
   // height metrics, scroll offsets, and virtualization caches completely.
-  const listKey = `grid_${state.activeSubTab}_${state.selectedCountryId}`;
+  const listKey = `grid_${state.activeSubTab}_${state.selectedCountryId}_${state.searchQuery}`;
 
-  // Reset scroll offset to 0 whenever sub-tab or country filter changes
+  // Reset scroll offset to 0 whenever sub-tab, country filter, or search changes
   useEffect(() => {
     flatListRef.current?.scrollToOffset({ offset: 0, animated: false });
-  }, [state.activeSubTab, state.selectedCountryId]);
+  }, [state.activeSubTab, state.selectedCountryId, state.searchQuery]);
 
   // Memoized renderItem to prevent item re-renders on parent state updates
   const renderItem: ListRenderItem<LiveStreamCardData> = useCallback(
@@ -55,10 +58,14 @@ export function HomeScreen() {
 
     return (
       <View style={styles.emptyContainer}>
-        <Text style={styles.emptyText}>No live streams found</Text>
+        <Text style={styles.emptyText}>
+          {state.searchQuery
+            ? `No live streams found for "${state.searchQuery}"`
+            : 'No live streams found'}
+        </Text>
       </View>
     );
-  }, [state.loading]);
+  }, [state.loading, state.searchQuery]);
 
   return (
     <SafeAreaView style={styles.screen} edges={['top']}>
@@ -66,9 +73,32 @@ export function HomeScreen() {
       <View style={styles.topSection}>
         <HomeHeader
           unreadCount={state.unreadNotifications}
+          onlineCount={state.onlineCount}
+          onPressSearch={actions.toggleSearch}
           onPressNotification={() => {}}
           onPressGiftBag={() => {}}
         />
+
+        {/* Collapsible Search Bar */}
+        {state.isSearchOpen && (
+          <View style={styles.searchBarContainer}>
+            <Icon name="search-outline" size={18} color="#666666" style={styles.searchIcon} />
+            <TextInput
+              style={styles.searchInput}
+              value={state.searchQuery}
+              onChangeText={actions.setSearchQuery}
+              placeholder="Search host name, country, or topic..."
+              placeholderTextColor="#888888"
+              autoFocus
+              returnKeyType="search"
+            />
+            {state.searchQuery.length > 0 && (
+              <Pressable onPress={actions.clearSearch} hitSlop={8}>
+                <Icon name="close-circle" size={18} color="#888888" />
+              </Pressable>
+            )}
+          </View>
+        )}
 
         <SubHeaderTabs
           activeTab={state.activeSubTab}
@@ -122,6 +152,26 @@ const styles = StyleSheet.create({
     flexGrow: 0,
     flexShrink: 0,
   },
+  searchBarContainer: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    backgroundColor: '#F3F4F6',
+    marginHorizontal: spacing.lg,
+    marginTop: spacing.xs,
+    marginBottom: spacing.xs,
+    paddingHorizontal: 12,
+    height: 40,
+    borderRadius: 20,
+  },
+  searchIcon: {
+    marginRight: 8,
+  },
+  searchInput: {
+    flex: 1,
+    fontSize: 14,
+    color: '#111111',
+    paddingVertical: 0,
+  },
   flatList: {
     flex: 1,
   },
@@ -153,5 +203,6 @@ const styles = StyleSheet.create({
     color: '#888888',
     fontSize: 16,
     fontWeight: '600',
+    textAlign: 'center',
   },
 });

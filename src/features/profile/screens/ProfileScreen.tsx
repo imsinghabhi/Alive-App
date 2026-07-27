@@ -3,6 +3,7 @@ import { Pressable, StyleSheet, Text, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useLoginViewModel } from '../../auth/hooks/useLoginViewModel';
 import { colors, spacing } from '../../../shared/theme';
+import { SplashLogo } from '../../splash/components/SplashLogo';
 
 export function ProfileScreen() {
   const { state, actions } = useLoginViewModel();
@@ -20,6 +21,7 @@ export function ProfileScreen() {
   return (
     <SafeAreaView style={styles.screen} edges={['top']}>
       <View style={styles.container}>
+        <SplashLogo size={64} style={{ marginBottom: spacing.md }} />
         <Text style={styles.title}>My Profile 👤</Text>
         {state.user?.email ? (
           <Text style={styles.userEmail}>{state.user.email}</Text>

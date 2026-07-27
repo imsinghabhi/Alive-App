@@ -1,18 +1,71 @@
 import React, { memo } from 'react';
-import { StyleSheet, Text, View } from 'react-native';
+import { StyleSheet, Text, View, ViewStyle } from 'react-native';
 
 import { colors } from '../../../shared/theme';
 
-function SplashLogoComponent() {
+export interface SplashLogoProps {
+  size?: number;
+  style?: ViewStyle;
+}
+
+function SplashLogoComponent({ size = 176, style }: SplashLogoProps) {
+  const scale = size / 176;
+
+  const dynamicStyles = {
+    shell: {
+      width: size,
+      height: size,
+      borderRadius: Math.max(8, Math.round(42 * scale)),
+    },
+    topGlow: {
+      left: Math.round(-18 * scale),
+      top: Math.round(-26 * scale),
+      width: Math.round(150 * scale),
+      height: Math.round(150 * scale),
+      borderRadius: Math.round(75 * scale),
+    },
+    bottomWave: {
+      left: Math.round(-10 * scale),
+      bottom: Math.round(18 * scale),
+      width: Math.round(208 * scale),
+      height: Math.round(56 * scale),
+    },
+    text: {
+      top: Math.round(50 * scale),
+      fontSize: Math.max(10, Math.round(34 * scale)),
+    },
+    cameraBadge: {
+      bottom: Math.round(16 * scale),
+    },
+    cameraBody: {
+      width: Math.max(14, Math.round(68 * scale)),
+      height: Math.max(10, Math.round(50 * scale)),
+      borderRadius: Math.max(3, Math.round(14 * scale)),
+      borderWidth: Math.max(1, Math.round(5 * scale)),
+    },
+    playTriangle: {
+      borderTopWidth: Math.max(2, Math.round(11 * scale)),
+      borderBottomWidth: Math.max(2, Math.round(11 * scale)),
+      borderLeftWidth: Math.max(3, Math.round(18 * scale)),
+      marginLeft: Math.max(1, Math.round(5 * scale)),
+    },
+    cameraTail: {
+      right: Math.round(-16 * scale),
+      borderTopWidth: Math.max(2, Math.round(10 * scale)),
+      borderBottomWidth: Math.max(2, Math.round(10 * scale)),
+      borderLeftWidth: Math.max(3, Math.round(14 * scale)),
+    },
+  };
+
   return (
-    <View style={styles.logoShell}>
-      <View style={styles.logoTopGlow} />
-      <View style={styles.logoBottomWave} />
-      <Text style={styles.logoText}>ALive</Text>
-      <View style={styles.cameraBadge}>
-        <View style={styles.cameraBody}>
-          <View style={styles.playTriangle} />
-          <View style={styles.cameraTail} />
+    <View style={[styles.logoShell, dynamicStyles.shell, style]}>
+      <View style={[styles.logoTopGlow, dynamicStyles.topGlow]} />
+      <View style={[styles.logoBottomWave, dynamicStyles.bottomWave]} />
+      <Text style={[styles.logoText, dynamicStyles.text]}>ALive</Text>
+      <View style={[styles.cameraBadge, dynamicStyles.cameraBadge]}>
+        <View style={[styles.cameraBody, dynamicStyles.cameraBody]}>
+          <View style={[styles.playTriangle, dynamicStyles.playTriangle]} />
+          <View style={[styles.cameraTail, dynamicStyles.cameraTail]} />
         </View>
       </View>
     </View>

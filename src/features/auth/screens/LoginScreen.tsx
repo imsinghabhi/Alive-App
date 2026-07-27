@@ -16,6 +16,7 @@ import { AuthTextField } from '../components/AuthTextField';
 import { GradientButton } from '../components/GradientButton';
 import { useLoginViewModel } from '../hooks/useLoginViewModel';
 import { colors, spacing, typography } from '../../../shared/theme';
+import { SplashLogo } from '../../splash/components/SplashLogo';
 
 function SocialButton({
   icon,
@@ -60,9 +61,7 @@ export function LoginScreen() {
       >
         <View style={styles.header}>
           <View style={styles.logoWrap}>
-            <View style={styles.logoCircle}>
-              <Text style={styles.logoText}>Alive</Text>
-            </View>
+            <SplashLogo size={100} />
           </View>
           <Text style={styles.title}>Welcome back! 👋</Text>
           <Text style={styles.subtitle}>

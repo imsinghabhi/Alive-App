@@ -1,4 +1,4 @@
-import { useCallback, useEffect } from 'react';
+import { useCallback, useEffect, useState } from 'react';
 import { useAppDispatch, useAppSelector } from '../../../store/hooks';
 import {
   fetchHomeFeedThunk,
@@ -20,6 +20,9 @@ export function useHomeViewModel() {
     loading,
     error,
   } = useAppSelector(state => state.home);
+
+  const [searchQuery, setSearchQuery] = useState('');
+  const [isSearchOpen, setIsSearchOpen] = useState(false);
 
   useEffect(() => {
     dispatch(fetchHomeFeedThunk());
@@ -50,7 +53,20 @@ export function useHomeViewModel() {
     [dispatch],
   );
 
-  // Filter streams strictly based on selected tab and country
+  const handleToggleSearch = useCallback(() => {
+    setIsSearchOpen(prev => {
+      if (prev) {
+        setSearchQuery('');
+      }
+      return !prev;
+    });
+  }, []);
+
+  const handleClearSearch = useCallback(() => {
+    setSearchQuery('');
+  }, []);
+
+  // Filter streams strictly based on selected tab, country, and search query
   const filteredStreams = streams.filter(stream => {
     const matchesTab =
       activeSubTab === 'Stream' ||
@@ -62,7 +78,14 @@ export function useHomeViewModel() {
       stream.countryId === selectedCountryId ||
       stream.countryName.toLowerCase() === selectedCountryId.toLowerCase();
 
-    return matchesTab && matchesCountry;
+    const query = searchQuery.trim().toLowerCase();
+    const matchesQuery =
+      !query ||
+      stream.hostName.toLowerCase().includes(query) ||
+      stream.countryName.toLowerCase().includes(query) ||
+      stream.category.toLowerCase().includes(query);
+
+    return matchesTab && matchesCountry && matchesQuery;
   });
 
   return {
@@ -75,12 +98,17 @@ export function useHomeViewModel() {
       streams: filteredStreams,
       loading,
       error,
+      searchQuery,
+      isSearchOpen,
     },
     actions: {
       refresh: handleRefresh,
       selectSubTab: handleSelectSubTab,
       selectCountry: handleSelectCountry,
       toggleFollowHost: handleToggleFollow,
+      setSearchQuery,
+      toggleSearch: handleToggleSearch,
+      clearSearch: handleClearSearch,
     },
   };
 }
